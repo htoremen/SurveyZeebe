@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Survey.Migration.App": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:50721;http://localhost:50722"
+    }
+  }
+}
