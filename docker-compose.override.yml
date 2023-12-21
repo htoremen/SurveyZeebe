@@ -1,0 +1,69 @@
+version: '3.4'
+
+services:
+  survey.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+    ports:
+      - "80"
+      - "443"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+
+  zeebe:
+    environment:
+      - ZEEBE_LOG_LEVEL=debug
+      - LOGGING_LEVEL_IO_GRPC=TRACE
+      - LOGGING_LEVEL_IO_CAMUNDA_MODELER=DEBUG
+      - ZEEBE_CA_CERTIFICATE_PATH=/path/to/certificate
+    ports:
+      - "26500:26500"
+      - "9600:9600"
+      - "5701:5701"
+    networks:
+      - zeebe_network
+
+  simple-monitor-postgres:
+    environment:
+      - zeebe.client.broker.gateway-address=zeebe:26500
+      - zeebe.client.worker.hazelcast.connection=zeebe:5701
+      - spring.datasource.url=jdbc:postgresql://postgres-zeebe-simple-monitor:5432/postgres
+      - spring.datasource.username=postgres
+      - spring.datasource.password=zeebe
+      - spring.datasource.driverClassName=org.postgresql.Driver
+      - spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+    ports:
+      - "8082:8082"
+    depends_on:
+      - zeebe
+      - postgres-zeebe-simple-monitor
+    networks:
+      - zeebe_network  
+
+  postgres-zeebe-simple-monitor:
+    image: postgres:12.2
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: zeebe
+    volumes:
+      - postgres-zeebe-simple-monitor-data:/var/lib/postgresql/data
+    networks:
+      - zeebe_network
+
+  survey.worker:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+    ports:
+      - "80"
+      - "443"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+      - ./Processes/Survey.bpmn:/app/Processes/Survey.bpmn
+      
+volumes:
+  postgres-zeebe-simple-monitor-data:
+    driver: local

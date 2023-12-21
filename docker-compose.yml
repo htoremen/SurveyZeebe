@@ -1,0 +1,31 @@
+version: '3.4'
+
+networks:
+  zeebe_network:
+    driver: bridge
+
+services:
+  survey.api:
+    image: ${DOCKER_REGISTRY-}surveyapi
+    build:
+      context: .
+      dockerfile: src/Survey.API/Dockerfile
+
+  zeebe:
+    container_name: zeebe_broker
+    image: ghcr.io/camunda-community-hub/zeebe-with-hazelcast-exporter:8.0.5
+        
+  simple-monitor-postgres:
+    container_name: zeebe-simple-monitor-postgres
+    image: ghcr.io/camunda-community-hub/zeebe-simple-monitor:2.4.1
+
+  postgres-zeebe-simple-monitor:
+    image: postgres:12.2
+    restart: always
+
+
+  survey.worker:
+    image: ${DOCKER_REGISTRY-}surveyworker
+    build:
+      context: .
+      dockerfile: src/Survey.Worker/Dockerfile

@@ -7,6 +7,27 @@ using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
+IWebHostEnvironment environment = builder.Environment;
+if (environment.EnvironmentName == "Development")
+{
+    builder
+        .Configuration
+        .AddJsonFile($"appsettings.{environment.EnvironmentName}.json", false, true)
+        .AddEnvironmentVariables()
+        .AddCommandLine(args)
+        .AddUserSecrets<Program>()
+        .Build();
+}
+else
+{
+    builder.Configuration
+            .AddJsonFile($"appsettings.json", false, true)
+            .AddEnvironmentVariables()
+            .AddCommandLine(args)
+            .AddUserSecrets<Program>()
+            .Build();
+}
+
 var appSettings = new AppSettings();
 builder.Configuration.Bind(appSettings);
 

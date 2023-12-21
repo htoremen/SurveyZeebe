@@ -6,24 +6,38 @@ using Survey.Run.App.Models;
 using Survey.Run.App.Services;
 using Survey.Shared.Models;
 
-IConfiguration Configuration;
 var builder = WebApplication.CreateBuilder(args);
 
 IWebHostEnvironment environment = builder.Environment;
-Configuration = builder.Configuration
-        .AddJsonFile($"appsettings.json", false, true)
+if (environment.EnvironmentName == "Development")
+{
+    builder
+        .Configuration
+        .AddJsonFile($"appsettings.{environment.EnvironmentName}.json", false, true)
         .AddEnvironmentVariables()
         .AddCommandLine(args)
         .AddUserSecrets<Program>()
         .Build();
+}
+else
+{
+    builder.Configuration
+            .AddJsonFile($"appsettings.json", false, true)
+            .AddEnvironmentVariables()
+            .AddCommandLine(args)
+            .AddUserSecrets<Program>()
+            .Build();
+}
 
 builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
 var settings = builder.Configuration.Get<AppSettings>();
-builder.Services.Configure<AppSettings>(options => Configuration.GetSection(nameof(AppSettings)).Bind(options));
+builder.Services.Configure<AppSettings>(options => builder.Configuration.GetSection(nameof(AppSettings)).Bind(options));
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(settings);
+
+StaticValues.SurveyAPI = settings.Service.SurveyAPI;
 
 builder.Services.AddScoped<IAppRunService, AppRunService>();
 

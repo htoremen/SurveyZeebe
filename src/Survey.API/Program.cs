@@ -1,13 +1,30 @@
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Survey.API.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+IWebHostEnvironment environment = builder.Environment;
+if (environment.EnvironmentName == "Development")
+{
+    builder
+        .Configuration
+        .AddJsonFile($"appsettings.{environment.EnvironmentName}.json", false, true)
+        .AddEnvironmentVariables()
+        .AddCommandLine(args)
+        .AddUserSecrets<Program>()
+        .Build();
+}
+else
+{
+    builder.Configuration
+            .AddJsonFile($"appsettings.json", false, true)
+            .AddEnvironmentVariables()
+            .AddCommandLine(args)
+            .AddUserSecrets<Program>()
+            .Build();
+}
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

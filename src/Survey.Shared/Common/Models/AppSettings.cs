@@ -5,6 +5,7 @@ public class AppSettings
     public ConnectionStrings ConnectionStrings { get; set; }
     public Authenticate Authenticate { get; set; }
     public ZeebeOptions Zeebe { get; set; }
+    public Services Service {  get; set; }
 }
 public class ConnectionStrings
 {
@@ -23,4 +24,9 @@ public class ZeebeOptions
     public string ProcessPath { get; set; }
     public string ZeebeGateway { get; set; }
     public string EventHubUrl { get; set; }
+}
+
+public class Services
+{
+    public string SurveyAPI { get; set; }
 }

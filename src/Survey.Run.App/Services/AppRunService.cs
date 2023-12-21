@@ -24,11 +24,10 @@ public class AppRunService : IAppRunService
 {
     private readonly IApplicationDbContext _context;
     private readonly RestClient _restClient;
-    private readonly string _baseUrl= "https://localhost:7094/api/";
     public AppRunService(IApplicationDbContext context)
     {
         _context = context;
-        _restClient = new RestClient(new RestClientOptions("https://localhost:7094") { MaxTimeout = -1 });
+        _restClient = new RestClient(new RestClientOptions(StaticValues.SurveyAPI) { MaxTimeout = -1 });
     }
 
     public List<SurveyItem> GetSurveyItems()
